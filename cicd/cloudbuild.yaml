@@ -16,8 +16,8 @@ steps:
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
-    cosign sign --key ./cosign.key ${ImageToAttest}
-  secretEnv: ['KEY']
+    gsutil cp gs://shawn-demo-2022/attestations/in-toto-simple.template ./in-toto-simple.template
+    cosign attest --key ./cosign.key --predicate ./in-toto-simple.template ${ImageToAttest}
 - id: 'verify image'
   name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
@@ -27,15 +27,9 @@ steps:
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
-    cosign verify --key ./cosign.pub ${ImageToAttest}    
-  secretEnv: ['VALIDATOR']
+    gsutil cp gs://shawn-demo-2022/attestations/policy.rego ./policy.rego
+    cosign verify-attestation --key cosign-1.pub --policy policy.rego ${ImageToAttest}    
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
   _COSIGN_PASSWORD: 'VMware1!'
-availableSecrets:
-  secretManager:
-  - versionName: projects/shawn-demo-2022/secrets/cosign-key1/versions/1
-    env: 'KEY'
-  - versionName: projects/shawn-demo-2022/secrets/cosign-validator1/versions/1
-    env: 'VALIDATOR'
   
