@@ -6,7 +6,8 @@ steps:
   - '-c'
   - |
     skaffold build --file-output tags.json
-- name: 'gcr.io/shawn-demo-2022/cosign'
+- id: 'sign image'
+  name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
   args:
   - '-c'
@@ -17,7 +18,8 @@ steps:
     echo $$KEY > ./cosign.key
     cosign sign --key ./cosign.key ${ImageToAttest}
   secretEnv: ['KEY']
-- name: 'gcr.io/shawn-demo-2022/cosign'
+- id: 'verify image'
+  name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
   args:
   - '-c'
