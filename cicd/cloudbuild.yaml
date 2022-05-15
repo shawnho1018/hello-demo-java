@@ -1,0 +1,35 @@
+steps:
+- id: 'buildImage'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold build --file-output tags.json
+- name: 'gcr.io/shawn-demo-2022/cosign'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+    export COSIGN_PASSWORD=${_COSIGN_PASSWORD}; cosign sign --key ${KEY} ${ImageToAttest}
+  secretEnv: ['KEY']
+- name: 'gcr.io/shawn-demo-2022/cosign'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+    cosign verify --key ${VALIDATOR} ${ImageToAttest}    
+substitutions:
+  _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
+  _COSIGN_PASSWORD: 'VMware1!'
+availableSecrets:
+  secretManager:
+  - versionName: projects/shawn-demo-2022/secrets/cosign-key1/versions/1
+    env: 'KEY'
+  - versionName: projects/shawn-demo-2022/secrets/cosign-validator1/versions/1
+    env: 'VALIDATOR'
+  

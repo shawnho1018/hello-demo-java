@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>hello-world</artifactId>
+  <packaging>jar</packaging>
+  <name>Cloud Code Hello World</name>
+  <description>Getting started with Cloud Code</description>
+  <version>1.0.2</version>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.6.6</version>
+  </parent>
+
+  <properties>
+    <java.version>1.8</java.version>
+    <jib.maven-plugin-version>3.2.1</jib.maven-plugin-version>
+    <checkstyle.config.location>./checkstyle.xml</checkstyle.config.location>
+  </properties>
+  <build>
+    <extensions>
+      <extension>
+        <groupId>com.google.cloud.artifactregistry</groupId>
+        <artifactId>artifactregistry-maven-wagon</artifactId>
+        <version>2.1.0</version>
+      </extension>
+    </extensions>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <layers>
+            <enabled>true</enabled>
+          </layers>        
+          <image>
+            <name>asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-spring-thin</name>
+            <publish>true</publish>
+          </image>
+          <docker>
+            <publishRegistry>
+              <username>oauth2accesstoken</username>
+              <password>ya29.A0ARrdaM-xkg0isQ41fQA8hoGoSTcPLu8c1zVA73hfQD4eypUb7WiozJHafPaokhpBDAuv-m1HufSuODRcZqDXWDYfEWDZyfS0WCEa2da3xvFdaNWIWhjCDLQrYAZ4kfn3v_gH6Rw9ipIdKytfooaheJxyRxwF1I3-nGfx</password>
+            </publishRegistry>
+          </docker>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>${jib.maven-plugin-version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>3.1.2</version>
+      </plugin>
+    </plugins>
+  </build>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>artifact-registry</id>
+      <url>artifactregistry://asia-east1-maven.pkg.dev/shawn-demo-2022/mvn-repo</url>
+    </snapshotRepository>
+    <repository>
+      <id>artifact-registry</id>
+      <url>artifactregistry://asia-east1-maven.pkg.dev/shawn-demo-2022/mvn-repo</url>
+    </repository>
+  </distributionManagement>
+  <!-- <repositories>
+    <repository>
+      <id>artifact-registry</id>
+      <url>artifactregistry://asia-east1-maven.pkg.dev/shawn-demo-2022/mvn-repo</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository> -->
+  <!-- </repositories> -->
+  <!-- The Spring Cloud GCP BOM will manage spring-cloud-gcp version numbers for you. -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-gcp-dependencies</artifactId>
+        <version>1.2.8.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+	
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-logging</artifactId>
+    </dependency>
+		
+  </dependencies>
+
+</project>
