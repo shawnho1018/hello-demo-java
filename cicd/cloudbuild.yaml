@@ -15,7 +15,7 @@ steps:
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
-    echo $$KEY > ./cosign.key
+    gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
     cosign sign --key ./cosign.key ${ImageToAttest}
   secretEnv: ['KEY']
 - id: 'verify image'
@@ -26,7 +26,7 @@ steps:
   - |
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
-    echo $$VALIDATOR > ./cosign.pub
+    gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
     cosign verify --key ./cosign.pub ${ImageToAttest}    
   secretEnv: ['VALIDATOR']
 substitutions:
