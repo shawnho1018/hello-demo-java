@@ -28,7 +28,7 @@ steps:
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
     gsutil cp gs://shawn-demo-2022/attestations/policy.rego ./policy.rego
-    cosign verify-attestation --key cosign-1.pub --policy policy.rego ${ImageToAttest}    
+    cosign verify-attestation --key cosign.pub --policy policy.rego ${ImageToAttest}    
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
   _COSIGN_PASSWORD: 'VMware1!'
