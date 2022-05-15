@@ -13,7 +13,8 @@ steps:
   - |
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
-    export COSIGN_PASSWORD=${_COSIGN_PASSWORD}; cosign sign --key ${KEY} ${ImageToAttest}
+    export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
+    cosign sign --key ${KEY} ${ImageToAttest}
   secretEnv: ['KEY']
 - name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
