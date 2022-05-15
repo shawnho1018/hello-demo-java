@@ -24,6 +24,7 @@ steps:
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     cosign verify --key $$VALIDATOR ${ImageToAttest}    
+  secretEnv: ['VALIDATOR']
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
   _COSIGN_PASSWORD: 'VMware1!'
