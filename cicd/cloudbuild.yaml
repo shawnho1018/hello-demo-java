@@ -27,8 +27,8 @@ steps:
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
-    gsutil cp gs://shawn-demo-2022/attestations/policy.rego ./policy.rego
-    cosign verify-attestation --key cosign.pub --policy policy.rego ${ImageToAttest}    
+    gsutil cp gs://shawn-demo-2022/attestations/policy.cue ./policy.cue
+    cosign verify-attestation --key cosign.pub --policy policy.cue ${ImageToAttest}    
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
   _COSIGN_PASSWORD: 'VMware1!'
