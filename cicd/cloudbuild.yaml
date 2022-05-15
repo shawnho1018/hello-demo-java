@@ -14,7 +14,7 @@ steps:
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
-    cosign sign --key ${KEY} ${ImageToAttest}
+    cosign sign --key $$KEY ${ImageToAttest}
   secretEnv: ['KEY']
 - name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
@@ -23,7 +23,7 @@ steps:
   - |
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
-    cosign verify --key ${VALIDATOR} ${ImageToAttest}    
+    cosign verify --key $$VALIDATOR ${ImageToAttest}    
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
   _COSIGN_PASSWORD: 'VMware1!'
