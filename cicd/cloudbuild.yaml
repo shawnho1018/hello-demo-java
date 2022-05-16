@@ -31,6 +31,7 @@ steps:
       gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
       gsutil cp gs://shawn-demo-2022/attestations/sca.template ./sca.template
       cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
+    fi
 - id: 'verify image'
   name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
