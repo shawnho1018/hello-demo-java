@@ -1,7 +1,7 @@
 steps:
 - id: 'scan source'
   name: 'gcr.io/shawn-demo-2022/snyk:latest'
-  entrypoint: 'bash'
+  entrypoint: 'sh'
   args:
   - '-c'
   - |
