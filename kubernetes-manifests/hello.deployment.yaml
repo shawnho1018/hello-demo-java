@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: server
-        image: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
+        image: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
         ports:
         - containerPort: 8080
         env:
