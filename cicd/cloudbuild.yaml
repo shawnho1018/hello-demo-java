@@ -30,6 +30,6 @@ steps:
     gsutil cp gs://shawn-demo-2022/attestations/policy.cue ./policy.cue
     cosign verify-attestation --key cosign.pub --policy policy.cue ${ImageToAttest}    
 substitutions:
-  _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java
+  _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
   
