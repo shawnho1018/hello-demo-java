@@ -1,4 +1,16 @@
 steps:
+- id: 'scan source'
+  name: 'gcr.io/shawn-demo-2022/snyk:latest'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    snyk auth $$SNYK_TOKEN
+    snyk test --json > /workspace/result.json
+    count = $(cat /workspace/result.json | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
+    test $count != 0 && gcloud builds cancel $BUILD_ID > /dev/null || true
+  secretEnv:
+    - SNYK_TOKEN
 - id: 'buildImage'
   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
   entrypoint: 'bash'
@@ -12,12 +24,13 @@ steps:
   args:
   - '-c'
   - |
-    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
-    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
-    export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
-    gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
-    gsutil cp gs://shawn-demo-2022/attestations/in-toto-simple.template ./in-toto-simple.template
-    cosign attest --key ./cosign.key --predicate ./in-toto-simple.template ${ImageToAttest}
+    if [[ -f /workspace/result.json ]]; then
+      ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+      ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+      export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
+      gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
+      gsutil cp gs://shawn-demo-2022/attestations/sca.template ./sca.template
+      cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
 - id: 'verify image'
   name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
@@ -27,9 +40,13 @@ steps:
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
-    gsutil cp gs://shawn-demo-2022/attestations/policy.cue ./policy.cue
-    cosign verify-attestation --key cosign.pub --policy policy.cue ${ImageToAttest}    
+    gsutil cp gs://shawn-demo-2022/attestations/policy.cue ./sca.cue
+    cosign verify-attestation --key cosign.pub --policy sca.cue ${ImageToAttest}    
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
+availableSecrets:
+  secretManager:
+  - versionName: projects/715534540884/secrets/snyk-token/versions/1
+    env: 'SNYK_TOKEN'
   

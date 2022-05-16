@@ -1,0 +1,20 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.22.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JAVA-COMGOOGLEPROTOBUF-2331703:
+    - '*':
+        reason: no reason
+        expires: 2022-06-15T16:38:16.540Z
+        created: 2022-05-16T16:38:16.548Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-2689634:
+    - '*':
+        reason: no reason
+        expires: 2022-06-15T16:40:28.695Z
+        created: 2022-05-16T16:40:28.700Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-2823313:
+    - '*':
+        reason: no reason
+        expires: 2022-06-15T16:41:03.076Z
+        created: 2022-05-16T16:41:03.085Z
+patch: {}
