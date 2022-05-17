@@ -25,7 +25,7 @@ steps:
   - '-c'
   - |
     ls -l /workspace
-    if [[ -f ${_RESULT_PATH} ]]; then
+    if [ -f ${_RESULT_PATH} ]; then
       echo "Has valid result...Signing attestation"
       ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
       ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
