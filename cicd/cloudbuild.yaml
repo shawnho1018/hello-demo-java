@@ -26,12 +26,15 @@ steps:
   - |
     ls -l /workspace
     if [[ -f ${_RESULT_PATH} ]]; then
+      echo "Has valid result...Signing attestation"
       ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
       ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
       export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
       gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
       gsutil cp gs://shawn-demo-2022/attestations/sca.template ./sca.template
       cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
+    else 
+      echo "No valid result ${_RESULT_PATH}...Skip signing"
     fi
 - id: 'verify image'
   name: 'gcr.io/shawn-demo-2022/cosign'
@@ -42,7 +45,7 @@ steps:
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
-    gsutil cp gs://shawn-demo-2022/attestations/policy.cue ./sca.cue
+    gsutil cp gs://shawn-demo-2022/attestations/sca.cue ./sca.cue
     cosign verify-attestation --key cosign.pub --policy sca.cue ${ImageToAttest}    
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
