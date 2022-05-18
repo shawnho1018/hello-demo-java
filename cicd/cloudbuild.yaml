@@ -17,7 +17,7 @@ steps:
   args:
   - '-c'
   - |
-    skaffold build --file-output tags.json
+    skaffold build --file-output workspace/tags.json
 - id: 'sign image'
   name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
@@ -36,6 +36,13 @@ steps:
     else 
       echo "No valid result ${_RESULT_PATH}...Skip signing"
     fi
+- id: 'container structural test'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold test -a workspace/tags.json
 - id: 'verify image'
   name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
@@ -46,7 +53,14 @@ steps:
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
     gsutil cp gs://shawn-demo-2022/attestations/sca.cue ./sca.cue
-    cosign verify-attestation --key cosign.pub --policy sca.cue ${ImageToAttest}    
+    cosign verify-attestation --key cosign.pub --policy sca.cue ${ImageToAttest}
+- id: 'deploy image'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold deploy -a workspace/tags.json
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
