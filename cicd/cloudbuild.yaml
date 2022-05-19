@@ -60,13 +60,14 @@ steps:
   args:
   - '-c'
   - |
-    gcloud container clusters get-credentials ${_GKE_CLUSTER} --project {_GKE_PROJECT}
+    gcloud container clusters get-credentials ${_GKE_CLUSTER} --project ${_GKE_PROJECT} --zone ${_GKE_ZONE:}
     skaffold deploy -a /workspace/tags.json
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
   _RESULT_PATH: /workspace/result.json
   _GKE_CLUSTER: tsmc
+  _GKE_ZONE: asia-east1-a
   _GKE_PROJECT: shawn-demo-2022
 availableSecrets:
   secretManager:
