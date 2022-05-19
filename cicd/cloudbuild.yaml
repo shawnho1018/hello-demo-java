@@ -1,4 +1,59 @@
 steps:
+- id: 'scan source'
+  name: 'gcr.io/shawn-demo-2022/snyk:latest'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    snyk auth $$SNYK_TOKEN
+    snyk test --json > ${_RESULT_PATH}
+    count = $(cat ${_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
+    test $count != 0 && gcloud builds cancel $BUILD_ID > /dev/null || true
+  secretEnv:
+    - SNYK_TOKEN
+- id: 'buildImage'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold build --file-output /workspace/tags.json
+- id: 'sign image'
+  name: 'gcr.io/shawn-demo-2022/cosign'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    ls -l /workspace
+    if [ -f ${_RESULT_PATH} ]; then
+      echo "Has valid result...Signing attestation"
+      ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+      ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+      export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
+      gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
+      gsutil cp gs://shawn-demo-2022/attestations/sca.template ./sca.template
+      cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
+    else 
+      echo "No valid result ${_RESULT_PATH}...Skip signing"
+    fi
+- id: 'container structural test'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold test -a /workspace/tags.json
+- id: 'verify image'
+  name: 'gcr.io/shawn-demo-2022/cosign'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+    gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
+    gsutil cp gs://shawn-demo-2022/attestations/sca.cue ./sca.cue
+    cosign verify-attestation --key cosign.pub --policy sca.cue ${ImageToAttest}
 - id: 'deploy image'
   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
   entrypoint: 'bash'
@@ -6,7 +61,7 @@ steps:
   - '-c'
   - |
     gcloud container clusters get-credentials ${_GKE_CLUSTER} --project ${_GKE_PROJECT} --zone ${_GKE_ZONE}
-    kubectl get nodes
+    skaffold deploy -a /workspace/tags.json
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
@@ -14,4 +69,7 @@ substitutions:
   _GKE_CLUSTER: tsmc
   _GKE_ZONE: asia-east1-a
   _GKE_PROJECT: shawn-demo-2022
-  
+availableSecrets:
+  secretManager:
+  - versionName: projects/715534540884/secrets/snyk-token/versions/1
+    env: 'SNYK_TOKEN'
