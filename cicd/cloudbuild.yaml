@@ -14,8 +14,4 @@ substitutions:
   _GKE_CLUSTER: tsmc
   _GKE_ZONE: asia-east1-a
   _GKE_PROJECT: shawn-demo-2022
-availableSecrets:
-  secretManager:
-  - versionName: projects/715534540884/secrets/snyk-token/versions/1
-    env: 'SNYK_TOKEN'
   
