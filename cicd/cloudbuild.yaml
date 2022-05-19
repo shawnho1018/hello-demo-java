@@ -17,7 +17,7 @@ steps:
   args:
   - '-c'
   - |
-    skaffold build --file-output workspace/tags.json
+    skaffold build --file-output /workspace/tags.json
 - id: 'sign image'
   name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
@@ -42,7 +42,7 @@ steps:
   args:
   - '-c'
   - |
-    skaffold test -a workspace/tags.json
+    skaffold test -a /workspace/tags.json
 - id: 'verify image'
   name: 'gcr.io/shawn-demo-2022/cosign'
   entrypoint: 'sh'
@@ -60,7 +60,7 @@ steps:
   args:
   - '-c'
   - |
-    skaffold deploy -a workspace/tags.json
+    skaffold deploy -a /workspace/tags.json
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
