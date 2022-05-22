@@ -13,7 +13,7 @@ steps:
   - '-c'
   - |
     skaffold test -a /workspace/tags.json
-- id: 'scan source & sign image'
+- id: 'scan source code & cve & sign image'
   name: 'gcr.io/shawn-demo-2022/snyk:latest'
   entrypoint: 'sh'
   args:
