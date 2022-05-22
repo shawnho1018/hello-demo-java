@@ -1,6 +1,6 @@
 # To learn more about the skaffold.yaml schema visit
 # https://skaffold.dev/docs/references/yaml/
-apiVersion: skaffold/v2beta19
+apiVersion: skaffold/v2beta28
 kind: Config
 build:
   tagPolicy:
@@ -19,6 +19,8 @@ test:
       - './structure-tests/*'
 # defines the Kubernetes manifests to deploy on each run
 deploy:
+  # kpt:
+  #   dir: kpt-hello
   kubectl:
     manifests:
     - ./kubernetes-manifests/**.yaml

@@ -1,0 +1,15 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: repo-is-openpolicyagent
+  namespace: cosign
+spec:
+  match:
+    kinds:
+      - apiGroups:
+          - apps
+        kinds:
+          - Deployment
+  parameters:
+    repos:
+      - asia-east1-docker.pkg.dev/shawn-demo-2022/

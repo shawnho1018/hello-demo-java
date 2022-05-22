@@ -29,3 +29,6 @@ spec:
           tcpSocket:
             port: 8080
           initialDelaySeconds: 5
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000

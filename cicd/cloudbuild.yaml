@@ -1,16 +1,4 @@
 steps:
-- id: 'scan source'
-  name: 'gcr.io/shawn-demo-2022/snyk:latest'
-  entrypoint: 'sh'
-  args:
-  - '-c'
-  - |
-    snyk auth $$SNYK_TOKEN
-    snyk test --json > ${_RESULT_PATH}
-    count = $(cat ${_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
-    test $count != 0 && gcloud builds cancel $BUILD_ID > /dev/null || true
-  secretEnv:
-    - SNYK_TOKEN
 - id: 'buildImage'
   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
   entrypoint: 'bash'
@@ -18,24 +6,6 @@ steps:
   - '-c'
   - |
     skaffold build --file-output /workspace/tags.json
-- id: 'sign image'
-  name: 'gcr.io/shawn-demo-2022/cosign'
-  entrypoint: 'sh'
-  args:
-  - '-c'
-  - |
-    ls -l /workspace
-    if [ -f ${_RESULT_PATH} ]; then
-      echo "Has valid result...Signing attestation"
-      ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
-      ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
-      export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
-      gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
-      gsutil cp gs://shawn-demo-2022/attestations/sca.template ./sca.template
-      cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
-    else 
-      echo "No valid result ${_RESULT_PATH}...Skip signing"
-    fi
 - id: 'container structural test'
   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
   entrypoint: 'bash'
@@ -43,17 +13,53 @@ steps:
   - '-c'
   - |
     skaffold test -a /workspace/tags.json
-- id: 'verify image'
-  name: 'gcr.io/shawn-demo-2022/cosign'
+- id: 'scan source & sign image'
+  name: 'gcr.io/shawn-demo-2022/snyk:latest'
   entrypoint: 'sh'
   args:
   - '-c'
   - |
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
-    gsutil cp gs://shawn-demo-2022/keys/cosign-1.pub ./cosign.pub
-    gsutil cp gs://shawn-demo-2022/attestations/sca.cue ./sca.cue
-    cosign verify-attestation --key cosign.pub --policy sca.cue ${ImageToAttest}
+    export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
+    snyk auth $$SNYK_TOKEN
+    echo "Test & Sign for Static Code Analysis"
+    snyk test --json > ${_SCA_RESULT_PATH}
+    count = $(cat ${_SCA_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
+    if [ $count == 0 ]; then
+      gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
+      gsutil cp gs://shawn-demo-2022/attestations/sca.template ./sca.template
+      cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
+    fi
+    test $count != 0 && gcloud builds cancel $BUILD_ID > /dev/null || true
+    echo "Test & Sign for Image CVE"
+    snyk container test ${ImageToAttest} --json > ${_CVE_RESULT_PATH}
+    count = $(cat ${_CVE_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
+    if [ $count < 2 ]; then
+      gsutil cp gs://shawn-demo-2022/keys/cosign-2.key ./cosign.key
+      gsutil cp gs://shawn-demo-2022/attestations/cve.template ./cve.template
+      cosign attest --key ./cosign.key --predicate ./cve.template ${ImageToAttest}
+    fi
+    test $count != 0 && gcloud builds cancel $BUILD_ID > /dev/null || true
+  secretEnv:
+    - SNYK_TOKEN
+- id: 'YAML complies to OPA gatekeeper'
+  name: 'gcr.io/shawn-demo-2022/gator:latest'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+    export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
+    result=$(gator test -f kubernetes-manifests/ -f gator-rules/)
+    if [ -z $result ]; then
+      gsutil cp gs://shawn-demo-2022/keys/cosign-3.key ./cosign.key
+      gsutil cp gs://shawn-demo-2022/attestations/gator.template ./gator.template
+      cosign attest --key ./cosign.key --predicate ./gator.template ${ImageToAttest}
+    elif
+      gcloud builds cancel $BUILD_ID > /dev/null || true
+    fi 
 - id: 'deploy image'
   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
   entrypoint: 'bash'
@@ -65,7 +71,8 @@ steps:
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
-  _RESULT_PATH: /workspace/result.json
+  _SCA_RESULT_PATH: /workspace/sca-result.json
+  _CVE_RESULT_PATH: /workspace/cve-result.json
   _GKE_CLUSTER: tsmc
   _GKE_ZONE: asia-east1-a
   _GKE_PROJECT: shawn-demo-2022
