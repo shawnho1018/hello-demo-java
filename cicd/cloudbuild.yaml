@@ -48,6 +48,7 @@ steps:
   args:
   - '-c'
   - |
+    cat /workspace/tags.json
     ImageToAttest=$(cat /workspace/tags.json | jq 'builds[0].tag')
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     result=$(gator test -f kubernetes-manifests/ -f gator-rules/)
