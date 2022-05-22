@@ -19,8 +19,7 @@ steps:
   args:
   - '-c'
   - |
-    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
-    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+    ImageToAttest=$(cat /workspace/tags.json | jq 'builds[0].tag')
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     snyk auth $$SNYK_TOKEN
     echo "Test & Sign for Static Code Analysis"
@@ -49,15 +48,14 @@ steps:
   args:
   - '-c'
   - |
-    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
-    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
+    ImageToAttest=$(cat /workspace/tags.json | jq 'builds[0].tag')
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     result=$(gator test -f kubernetes-manifests/ -f gator-rules/)
     if [ -z $result ]; then
       gsutil cp gs://shawn-demo-2022/keys/cosign-3.key ./cosign.key
       gsutil cp gs://shawn-demo-2022/attestations/gator.template ./gator.template
       cosign attest --key ./cosign.key --predicate ./gator.template ${ImageToAttest}
-    elif
+    else
       gcloud builds cancel $BUILD_ID > /dev/null || true
     fi 
 - id: 'deploy image'
