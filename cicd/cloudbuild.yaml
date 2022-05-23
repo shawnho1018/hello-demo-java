@@ -30,7 +30,7 @@ steps:
   - '-c'
   - |
     gcloud artifacts docker images scan ${_IMAGE_PATH}:latest \
-    --format='value(response.scan)' > /workspace/scan_id.txt
+    --format='value(response.scan)' --remote > /workspace/scan_id.txt
 
 - id: 'scan source code & cve & sign image'
   name: 'gcr.io/shawn-demo-2022/cosign:latest'
