@@ -19,7 +19,8 @@ RUN mvn -Dmaven.test.skip=true package
 
 # Build runtime image.
 #FROM gcr.io/distroless/java11-debian11
-FROM openjdk:11-jre-slim
+#FROM openjdk:11-jre-slim
+FROM openjdk:18.0-jdk
 ARG UNAME=user
 ARG UID=1100
 ARG GID=1100
