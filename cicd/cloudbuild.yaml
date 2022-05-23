@@ -19,22 +19,18 @@ steps:
   args:
     - '-c'
     - |
-      echo $$SNYK_TOKEN
-      snyk config set api=$$SNYK_TOKEN
+      echo ${_SNYK_TOKEN}
+      snyk config set api="${_SNYK_TOKEN}"
       snyk test --severity-threshold=medium --json > ${_SCA_RESULT_PATH}
-  secretEnv:
-    - SNYK_TOKEN
 - id: 'scan image cve'
   name: 'snyk/snyk-cli:npm'
   entrypoint: bash
   args:
     - '-c'
     - |
-      echo $$SNYK_TOKEN
-      snyk config set api=$$SNYK_TOKEN
+      echo ${_SNYK_TOKEN}
+      snyk config set api="${_SNYK_TOKEN}"
       snyk container test "${_IMAGE_PATH}:latest" --severity-threshold=medium --json > ${_CVE_RESULT_PATH}
-  secretEnv:
-    - SNYK_TOKEN
 - id: 'scan source code & cve & sign image'
   name: 'gcr.io/shawn-demo-2022/cosign:latest'
   entrypoint: 'bash'
