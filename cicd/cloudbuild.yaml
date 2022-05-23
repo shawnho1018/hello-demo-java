@@ -14,7 +14,7 @@ steps:
 #   - |
 #     skaffold test -a /workspace/tags.json
 - id: 'scan source code'
-  name: 'snyk/snyk-cli:npm'
+  name: 'snyk/snyk-cli:maven-3.6.3'
   entrypoint: 'bash'  
   args:
     - '-c'
@@ -24,7 +24,7 @@ steps:
       snyk test --json > ${_SCA_RESULT_PATH} || true
       cat ${_SCA_RESULT_PATH}
 - id: 'scan image cve'
-  name: 'snyk/snyk-cli:npm'
+  name: 'snyk/snyk-cli:maven-3.6.3'
   entrypoint: 'bash'
   args:
     - '-c'
