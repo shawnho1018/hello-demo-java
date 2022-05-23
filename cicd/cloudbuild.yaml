@@ -22,6 +22,7 @@ steps:
       echo ${_SNYK_TOKEN}
       snyk config set api="${_SNYK_TOKEN}"
       snyk test --json > ${_SCA_RESULT_PATH} || true
+      cat ${_SCA_RESULT_PATH}
 - id: 'scan image cve'
   name: 'snyk/snyk-cli:npm'
   entrypoint: 'bash'
@@ -30,7 +31,8 @@ steps:
     - |
       echo ${_SNYK_TOKEN}
       snyk config set api="${_SNYK_TOKEN}"
-      snyk container test "${_IMAGE_PATH}:latest" --json > ${_CVE_RESULT_PATH}
+      snyk container test "${_IMAGE_PATH}:latest" --json > ${_CVE_RESULT_PATH} || true
+      cat ${_CVE_RESULT_PATH}
 - id: 'scan source code & cve & sign image'
   name: 'gcr.io/shawn-demo-2022/cosign:latest'
   entrypoint: 'bash'
