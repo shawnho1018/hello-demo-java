@@ -19,7 +19,8 @@ steps:
   args:
   - '-c'
   - |
-    ImageToAttest=$(cat /workspace/tags.json | jq '.builds[0].tag')
+    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     echo "ImageToAttest: ${ImageToAttest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     snyk auth $$SNYK_TOKEN
@@ -36,8 +37,7 @@ steps:
       gcloud builds cancel $BUILD_ID > /dev/null || true
     fi
     echo "Test & Sign for Image CVE"
-    ImageToTest=$(cat /workspace/tags.json | jq '.builds[0].imageName')
-    snyk container test "${ImageToTest}:latest" --json > ${_CVE_RESULT_PATH}
+    snyk container test "${_Image_PATH}:latest" --json > ${_CVE_RESULT_PATH}
     count=$(cat ${_CVE_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
     echo "CVE Count: $count"
     if [ $count -lt 5 ]; then
@@ -56,7 +56,8 @@ steps:
   args:
   - '-c'
   - |
-    ImageToAttest=$(cat /workspace/tags.json | jq '.builds[0].tag')
+    ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
+    ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     result=$(gator test -f kubernetes-manifests/ -f gator-rules/)
     if [ -z $result ]; then
