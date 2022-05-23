@@ -19,11 +19,11 @@ steps:
   args:
   - '-c'
   - |
+    export SNYK_TOKEN=$$SNYK_TOKEN
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     echo "ImageToAttest: ${ImageToAttest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
-    snyk auth $$SNYK_TOKEN
     echo "Test & Sign for Static Code Analysis"
     snyk test . --json > ${_SCA_RESULT_PATH}
     cat ${_SCA_RESULT_PATH} 
