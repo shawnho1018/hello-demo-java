@@ -21,7 +21,7 @@ steps:
     - |
       echo ${_SNYK_TOKEN}
       snyk config set api="${_SNYK_TOKEN}"
-      snyk test --json > ${_SCA_RESULT_PATH}
+      snyk test --json > ${_SCA_RESULT_PATH} || true
 - id: 'scan image cve'
   name: 'snyk/snyk-cli:docker'
   entrypoint: 'bash'
