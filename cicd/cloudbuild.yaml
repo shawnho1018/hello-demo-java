@@ -70,8 +70,6 @@ steps:
     else
       gcloud builds cancel $BUILD_ID > /dev/null || true
     fi
-  secretEnv:
-    - SNYK_TOKEN
 - id: 'YAML complies to OPA gatekeeper'
   name: 'gcr.io/shawn-demo-2022/gator:latest'
   entrypoint: 'sh'
