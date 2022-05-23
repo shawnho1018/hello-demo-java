@@ -18,7 +18,8 @@ steps:
   entrypoint: bash  
   args:
     - '-c'
-    - |-
+    - |
+      echo $$SNYK_TOKEN
       snyk config set api=$$SNYK_TOKEN
       snyk test --severity-threshold=medium --json > ${_SCA_RESULT_PATH}
 - id: 'scan image cve'
@@ -26,7 +27,8 @@ steps:
   entrypoint: bash
   args:
     - '-c'
-    - |-
+    - |
+      echo $$SNYK_TOKEN
       snyk config set api=$$SNYK_TOKEN
       snyk container test "${_IMAGE_PATH}:latest" --severity-threshold=medium --json > ${_CVE_RESULT_PATH}
 - id: 'scan source code & cve & sign image'
