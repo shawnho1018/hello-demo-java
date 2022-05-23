@@ -25,9 +25,9 @@ steps:
       cat ${_SCA_RESULT_PATH}
 - id: 'scan image cve'
   name: gcr.io/google.com/cloudsdktool/cloud-sdk
-  entrypoint: gcloud
+  entrypoint: 'bash'
   args:
-  - -c
+  - '-c'
   - |
     gcloud artifacts docker images scan ${_IMAGE_PATH}:latest \
     --format='value(response.scan)' > /workspace/scan_id.txt
@@ -55,7 +55,7 @@ steps:
       echo "source code check failed" && exit 1
     fi
 
-    echo "Sign for Image CVE"
+    echo "Check Image CVE"
     gcloud artifacts docker images list-vulnerabilities $(cat /workspace/scan_id.txt) \
     --format='value(vulnerability.effectiveSeverity)' > result.txt
     cat result.txt
