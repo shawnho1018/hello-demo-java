@@ -14,7 +14,7 @@ steps:
 #   - |
 #     skaffold test -a /workspace/tags.json
 - id: 'scan source code'
-  name: 'snyk/snyk-cli'
+  name: 'snyk/snyk-cli:docker'
   entrypoint: 'bash'  
   args:
     - '-c'
@@ -23,7 +23,7 @@ steps:
       snyk config set api="${_SNYK_TOKEN}"
       snyk test --json > ${_SCA_RESULT_PATH}
 - id: 'scan image cve'
-  name: 'snyk/snyk-cli'
+  name: 'snyk/snyk-cli:docker'
   entrypoint: 'bash'
   args:
     - '-c'
