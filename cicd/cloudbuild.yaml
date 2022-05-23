@@ -15,7 +15,7 @@ steps:
     skaffold test -a /workspace/tags.json
 - id: 'scan source code'
   name: 'snyk/snyk-cli:npm'
-  entrypoint: bash  
+  entrypoint: 'bash'  
   args:
     - '-c'
     - |
@@ -24,7 +24,7 @@ steps:
       snyk test --severity-threshold=medium --json > ${_SCA_RESULT_PATH}
 - id: 'scan image cve'
   name: 'snyk/snyk-cli:npm'
-  entrypoint: bash
+  entrypoint: 'bash'
   args:
     - '-c'
     - |
@@ -100,7 +100,7 @@ substitutions:
   _GKE_CLUSTER: tsmc
   _GKE_ZONE: asia-east1-a
   _GKE_PROJECT: shawn-demo-2022
-availableSecrets:
-  secretManager:
-  - versionName: projects/715534540884/secrets/snyk-token/versions/1
-    env: 'SNYK_TOKEN'
+# availableSecrets:
+#   secretManager:
+#   - versionName: projects/715534540884/secrets/snyk-token/versions/1
+#     env: 'SNYK_TOKEN'
