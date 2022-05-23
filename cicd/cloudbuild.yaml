@@ -23,8 +23,8 @@ steps:
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     snyk auth $$SNYK_TOKEN
     echo "Test & Sign for Static Code Analysis"
-    snyk test --json > ${_SCA_RESULT_PATH}
-    count = $(cat ${_SCA_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
+    snyk test --json . > ${_SCA_RESULT_PATH}
+    count=$(cat ${_SCA_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
     if [ $count = 0 ]; then
       gsutil cp gs://shawn-demo-2022/keys/cosign-1.key ./cosign.key
       gsutil cp gs://shawn-demo-2022/attestations/sca.template ./sca.template
@@ -34,7 +34,7 @@ steps:
     fi
     echo "Test & Sign for Image CVE"
     snyk container test ${ImageToAttest} --json > ${_CVE_RESULT_PATH}
-    count = $(cat ${_CVE_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
+    count=$(cat ${_CVE_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
     if [ $count -lt 2 ]; then
       gsutil cp gs://shawn-demo-2022/keys/cosign-2.key ./cosign.key
       gsutil cp gs://shawn-demo-2022/attestations/cve.template ./cve.template
