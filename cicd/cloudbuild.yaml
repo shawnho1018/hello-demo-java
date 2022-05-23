@@ -1,18 +1,18 @@
 steps:
-# - id: 'buildImage'
-#   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
-#   entrypoint: 'bash'
-#   args:
-#   - '-c'
-#   - |
-#     skaffold build --file-output /workspace/tags.json
-# - id: 'container structural test'
-#   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
-#   entrypoint: 'bash'
-#   args:
-#   - '-c'
-#   - |
-#     skaffold test -a /workspace/tags.json
+- id: 'buildImage'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold build --file-output /workspace/tags.json
+- id: 'container structural test'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold test -a /workspace/tags.json
 - id: 'scan source code'
   name: 'snyk/snyk-cli:maven-3.6.3'
   entrypoint: 'bash'  
@@ -24,15 +24,14 @@ steps:
       snyk test --json > ${_SCA_RESULT_PATH} || true
       cat ${_SCA_RESULT_PATH}
 - id: 'scan image cve'
-  name: 'snyk/snyk-cli:maven-3.6.3'
-  entrypoint: 'bash'
+  name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  entrypoint: gcloud
   args:
-    - '-c'
-    - |
-      echo ${_SNYK_TOKEN}
-      snyk config set api="${_SNYK_TOKEN}"
-      snyk container test "${_IMAGE_PATH}:latest" --json > ${_CVE_RESULT_PATH} || true
-      cat ${_CVE_RESULT_PATH}
+  - -c
+  - |
+    gcloud artifacts docker images scan ${_IMAGE_PATH}:latest \
+    --format='value(response.scan)' > /workspace/scan_id.txt
+
 - id: 'scan source code & cve & sign image'
   name: 'gcr.io/shawn-demo-2022/cosign:latest'
   entrypoint: 'bash'
@@ -53,20 +52,20 @@ steps:
       echo "Signing for Static Code Analysis"
       cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
     else
-      gcloud builds cancel $BUILD_ID > /dev/null || true
+      echo "source code check failed" && exit 1
     fi
 
     echo "Sign for Image CVE"
-    cat ${_CVE_RESULT_PATH}
-    count=$(cat ${_CVE_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
-    echo "CVE Count: $count"
-    if [ $count -lt 5 ]; then
-      gsutil cp gs://shawn-demo-2022/keys/cosign-2.key ./cosign.key
-      gsutil cp gs://shawn-demo-2022/attestations/cve.template ./cve.template
-      echo "Signing for CVE"
-      cosign attest --key ./cosign.key --predicate ./cve.template ${ImageToAttest}
+    gcloud artifacts docker images list-vulnerabilities $(cat /workspace/scan_id.txt) \
+    --format='value(vulnerability.effectiveSeverity)' > result.txt
+    cat result.txt
+    if (cat result.txt | grep -Fxq $_SEVERITY); then
+      echo 'Failed vulnerability check' && exit 1
     else
-      gcloud builds cancel $BUILD_ID > /dev/null || true
+      gsutil cp gs://shawn-demo-2022/keys/cosign-2.key ./cosign.key
+      gsutil cp gs://shawn-demo-2022/attestations/sca.template ./cve.template
+      echo "Signing for CVE Analysis"
+      cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
     fi
 - id: 'YAML complies to OPA gatekeeper'
   name: 'gcr.io/shawn-demo-2022/gator:latest'
@@ -102,6 +101,7 @@ substitutions:
   _GKE_CLUSTER: tsmc
   _GKE_ZONE: asia-east1-a
   _GKE_PROJECT: shawn-demo-2022
+  _SEVERITY: CRITICAL
 # availableSecrets:
 #   secretManager:
 #   - versionName: projects/715534540884/secrets/snyk-token/versions/1
