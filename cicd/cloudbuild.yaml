@@ -19,13 +19,13 @@ steps:
   args:
   - '-c'
   - |
-    export SNYK_TOKEN=$$SNYK_TOKEN
+    snyk config set api=$$SNYK_TOKEN
     ImageDigest="$(gcloud container images list-tags --format='get(digest)' ${_IMAGE_PATH} | head -1)"
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     echo "ImageToAttest: ${ImageToAttest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     echo "Test & Sign for Static Code Analysis"
-    snyk test . --json > ${_SCA_RESULT_PATH}
+    snyk test --json > ${_SCA_RESULT_PATH}
     cat ${_SCA_RESULT_PATH} 
     count=$(cat ${_SCA_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
     echo "SCA Count: $count"
