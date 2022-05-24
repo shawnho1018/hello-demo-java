@@ -18,7 +18,7 @@ metadata:
   name: uat-ns
 description: development cluster
 gke:
-  cluster: projects/shawn-demo-2022/locations/asia-east1-a/clusters/production
+  cluster: projects/shawn-demo-2022/locations/asia-east1-a/clusters/tsmc
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
