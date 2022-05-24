@@ -1,0 +1,5 @@
+namespace: test
+commonLabels:
+  env: test
+bases:
+- ../base  
