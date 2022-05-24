@@ -15,7 +15,7 @@ steps:
     skaffold test -a /workspace/tags.json
 - id: 'scan source code'
   name: 'snyk/snyk-cli:maven-3.6.3'
-  entrypoint: 'bash'  
+  entrypoint: 'bash'
   args:
     - '-c'
     - |
@@ -45,7 +45,6 @@ steps:
     echo "ImageToAttest: ${ImageToAttest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     echo "Sign for Static Code Analysis"
-    cat ${_SCA_RESULT_PATH}
     count=$(cat ${_SCA_RESULT_PATH} | jq '.vulnerabilities[] | select((.severity == "critical") or (.severity == "high"))' | jq '.identifiers.CVE[0]' | sort | uniq -c | wc -l | awk '{print $1}')
     echo "SCA Count: $count"
     if [ $count = 0 ]; then
@@ -85,26 +84,34 @@ steps:
       echo "Signing for Gator"
       cosign attest --key ./cosign.key --predicate ./gator.template ${ImageToAttest}
     else
-      gcloud builds cancel $BUILD_ID > /dev/null || true
+      exit 1
     fi
-- id: 'deploy image'
-  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
-  entrypoint: 'bash'
+- id: 'trigger cloud deploy'
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: sh
   args:
   - '-c'
   - |
-    gcloud container clusters get-credentials ${_GKE_CLUSTER} --project ${_GKE_PROJECT} --zone ${_GKE_ZONE}
-    skaffold deploy -a /workspace/tags.json
+    if [ -f tags.json ]; then
+      gcloud beta deploy releases create rev-${SHORT_SHA} \
+      --delivery-pipeline=${_PIPELINE} \
+      --labels=version=${SHORT_SHA} \
+      --region ${_LOCATION} \
+      --build-artifacts tags.json
+    else 
+      echo "tags.json does not exist"
+    fi
+  waitFor:
+    - 'YAML complies to OPA gatekeeper'
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _COSIGN_PASSWORD: 'VMware1!'
   _SCA_RESULT_PATH: /workspace/sca-result.json
   _CVE_RESULT_PATH: /workspace/cve-result.json
-  _GKE_CLUSTER: tsmc
-  _GKE_ZONE: asia-east1-a
-  _GKE_PROJECT: shawn-demo-2022
   _SEVERITY: CRITICAL
   _NEGLECT_CVE: CVE-2022-1292
+  _PIPELINE: hello-java
+  _LOCATION: asia-east1
 timeout: 900s
 # availableSecrets:
 #   secretManager:

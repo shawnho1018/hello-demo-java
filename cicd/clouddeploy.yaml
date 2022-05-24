@@ -1,0 +1,29 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: hello-java
+description: Software Delivery Workshop Sample
+serialPipeline:
+  stages:
+  - targetId: uat-ns
+    profiles:
+    - uat
+  - targetId: prod-ns
+    profiles:
+    - production
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: uat-ns
+description: development cluster
+gke:
+  cluster: projects/shawn-demo-2022/locations/asia-east1-a/clusters/production
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: prod-ns
+description: production cluster
+anthosCluster:
+  membership: projects/shawn-demo-2022/locations/asia-east1/memberships/uc1

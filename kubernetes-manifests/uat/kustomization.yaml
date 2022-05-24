@@ -1,0 +1,5 @@
+namespace: uat
+commonLabels:
+  env: uat
+bases:
+- ../base  
