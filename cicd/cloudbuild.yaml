@@ -19,8 +19,9 @@ steps:
   args:
     - '-c'
     - |
-      echo "$$SNYK_TOKEN, ${_SNYK_TOKEN}"
-      snyk config set api="${_SNYK_TOKEN}
+      echo "$$SNYK_TOKEN"
+      echo "${_SNYK_TOKEN}"
+      snyk config set api="${_SNYK_TOKEN}"
       snyk test --json > ${_SCA_RESULT_PATH} || true
       cat ${_SCA_RESULT_PATH}
   secretEnv:
