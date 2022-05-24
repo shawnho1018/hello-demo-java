@@ -19,10 +19,12 @@ steps:
   args:
     - '-c'
     - |
-      echo ${_SNYK_TOKEN}
-      snyk config set api="${_SNYK_TOKEN}"
+      echo $$SNYK_TOKEN
+      snyk config set api=$$SNYK_TOKEN
       snyk test --json > ${_SCA_RESULT_PATH} || true
       cat ${_SCA_RESULT_PATH}
+  secretEnv:
+    - 'SNYK_TOKEN'
 - id: 'scan image cve'
   name: gcr.io/google.com/cloudsdktool/cloud-sdk
   entrypoint: 'bash'
@@ -103,7 +105,8 @@ substitutions:
   _GKE_PROJECT: shawn-demo-2022
   _SEVERITY: CRITICAL
   _NEGLECT_CVE: CVE-2022-1292
-# availableSecrets:
-#   secretManager:
-#   - versionName: projects/715534540884/secrets/snyk-token/versions/1
-#     env: 'SNYK_TOKEN'
+timeout: 900s
+availableSecrets:
+  secretManager:
+  - versionName: projects/715534540884/secrets/snyk-token/versions/1
+    env: 'SNYK_TOKEN'
