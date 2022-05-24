@@ -57,9 +57,9 @@ steps:
 
     echo "Check Image CVE"
     gcloud artifacts docker images list-vulnerabilities $(cat /workspace/scan_id.txt) \
-    --format='value(vulnerability.effectiveSeverity)' > result.txt
+    --format='value(vulnerability.effectiveSeverity, vulnerability.shortDescription)' > result.txt
     cat result.txt
-    if (cat result.txt | grep -Fxq $_SEVERITY); then
+    if (cat result.txt | grep -Fxq $_SEVERITY | grep -vFxq $_NEGLECT_CVE); then
       echo 'Failed vulnerability check' && exit 1
     else
       gsutil cp gs://shawn-demo-2022/keys/cosign-2.key ./cosign.key
@@ -102,6 +102,7 @@ substitutions:
   _GKE_ZONE: asia-east1-a
   _GKE_PROJECT: shawn-demo-2022
   _SEVERITY: CRITICAL
+  _NEGLECT_CVE: CVE-2022-1292
 # availableSecrets:
 #   secretManager:
 #   - versionName: projects/715534540884/secrets/snyk-token/versions/1
