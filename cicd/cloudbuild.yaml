@@ -19,8 +19,8 @@ steps:
   args:
     - '-c'
     - |
-      echo $$SNYK_TOKEN
-      snyk config set api=$$SNYK_TOKEN
+      echo "$$SNYK_TOKEN, ${_SNYK_TOKEN}"
+      snyk config set api="${_SNYK_TOKEN}
       snyk test --json > ${_SCA_RESULT_PATH} || true
       cat ${_SCA_RESULT_PATH}
   secretEnv:
@@ -34,7 +34,7 @@ steps:
     gcloud artifacts docker images scan ${_IMAGE_PATH}:latest \
     --format='value(response.scan)' --remote > /workspace/scan_id.txt
 
-- id: 'scan source code & cve & sign image'
+- id: 'Check code & cve & sign image'
   name: 'gcr.io/shawn-demo-2022/cosign:latest'
   entrypoint: 'bash'
   args:
@@ -65,7 +65,7 @@ steps:
       echo 'Failed vulnerability check' && exit 1
     else
       gsutil cp gs://shawn-demo-2022/keys/cosign-2.key ./cosign.key
-      gsutil cp gs://shawn-demo-2022/attestations/sca.template ./cve.template
+      gsutil cp gs://shawn-demo-2022/attestations/cve.template ./cve.template
       echo "Signing for CVE Analysis"
       cosign attest --key ./cosign.key --predicate ./cve.template ${ImageToAttest}
     fi
