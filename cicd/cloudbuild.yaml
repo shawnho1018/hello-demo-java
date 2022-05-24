@@ -65,7 +65,7 @@ steps:
       gsutil cp gs://shawn-demo-2022/keys/cosign-2.key ./cosign.key
       gsutil cp gs://shawn-demo-2022/attestations/sca.template ./cve.template
       echo "Signing for CVE Analysis"
-      cosign attest --key ./cosign.key --predicate ./sca.template ${ImageToAttest}
+      cosign attest --key ./cosign.key --predicate ./cve.template ${ImageToAttest}
     fi
 - id: 'YAML complies to OPA gatekeeper'
   name: 'gcr.io/shawn-demo-2022/gator:latest'
