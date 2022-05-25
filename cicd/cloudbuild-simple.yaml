@@ -1,0 +1,36 @@
+steps:
+- id: 'buildImage'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold build --file-output /workspace/tags.json
+- id: 'container structural test'
+  name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    skaffold test -a /workspace/tags.json
+- id: 'trigger cloud deploy'
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: sh
+  args:
+  - '-c'
+  - |
+    if [ -f tags.json ]; then
+      gcloud beta deploy releases create rev-${SHORT_SHA} \
+      --delivery-pipeline=${_PIPELINE} \
+      --labels=version=${SHORT_SHA} \
+      --region ${_LOCATION} \
+      --build-artifacts tags.json
+    else 
+      echo "tags.json does not exist"
+    fi
+  waitFor:
+    - 'YAML complies to OPA gatekeeper'
+substitutions:
+  _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
+  _PIPELINE: hello-java
+  _LOCATION: asia-east1
