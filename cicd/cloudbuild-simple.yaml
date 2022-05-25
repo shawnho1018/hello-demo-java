@@ -28,8 +28,6 @@ steps:
     else 
       echo "tags.json does not exist"
     fi
-  waitFor:
-    - 'YAML complies to OPA gatekeeper'
 substitutions:
   _IMAGE_PATH: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-docker
   _PIPELINE: hello-java
