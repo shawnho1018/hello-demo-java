@@ -17,7 +17,7 @@ public final class HelloWorldController {
      */
     @GetMapping("/")
     public String helloWorld(Model model) {
-        String message = "It's running!";
+        String message = "It's DevOps Time in Chimei!";
         model.addAttribute("message", message);
         return "index";
     }
