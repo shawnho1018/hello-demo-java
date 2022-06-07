@@ -17,7 +17,7 @@ public final class HelloWorldController {
      */
     @GetMapping("/")
     public String helloWorld(Model model) {
-        String message = "Hello! This is a demo at Chimei! ";
+        String message = "Hello! This is a demo! ";
         model.addAttribute("message", message);
         return "index";
     }
