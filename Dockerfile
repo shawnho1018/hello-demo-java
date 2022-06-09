@@ -24,8 +24,7 @@ FROM openjdk:19-slim-bullseye
 ARG UNAME=user
 ARG UID=1100
 ARG GID=1100
-RUN groupadd -g $GID -o $UNAME
-RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+RUN groupadd -g $GID -o $UNAME && useradd -m -u -l $UID -g $GID -o -s /bin/bash $UNAME
 USER $UNAME
 # Copy the compiled files over.
 COPY --from=build-env /app/target/ /app/
