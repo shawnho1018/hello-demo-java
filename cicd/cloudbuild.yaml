@@ -6,6 +6,14 @@ steps:
   - '-c'
   - |
     skaffold build --file-output /workspace/tags.json
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Linting Dockerfile for Static Analysis'
+  entrypoint: bash
+  args:
+    - '-c'
+    - |
+      docker run --rm -i hadolint/hadolint hadolint -f json - < ./Dockerfile > /workspace/res.txt ; \
+      if [[ $(cat res.txt | wc -c) -gt 2 ]] ; then echo 'Static Analysis failed' && cat res.txt && exit 1; else echo 'Linting passed'; fi
 - id: 'container structural test'
   name: 'gcr.io/k8s-skaffold/skaffold:v1.35.1'
   entrypoint: 'bash'
