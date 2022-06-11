@@ -69,7 +69,7 @@
         <configuration>
           <printLicenses>true</printLicenses>
           <blacklistedLicenses>
-            <license>GNU Lesser General Public License</license>
+            <!-- license >GNU Lesser General Public License</license -->
             <license>GNU General Public License, v2.0</license>
           </blacklistedLicenses>
           <failBuildOnBlacklisted>true</failBuildOnBlacklisted>
