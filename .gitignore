@@ -1,5 +1,10 @@
 **/.DS_Store
 pkg/
+kpt-hello/
+.vscode/
+.mvn/
+.idea/
+.readmes/
 .idea/workspace.xml
 .idea/misc.xml
 .idea/gradle.xml
