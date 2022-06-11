@@ -1,6 +1,5 @@
 # Use maven to compile the java application.
 FROM maven:3-jdk-11-slim AS build-env
-
 # Set the working directory to /app
 WORKDIR /app
 
@@ -21,11 +20,12 @@ RUN mvn -Dmaven.test.skip=true package
 #FROM gcr.io/distroless/java11-debian11
 FROM openjdk:19-slim-bullseye
 #FROM openjdk:18.0-jdk
-ARG UNAME=user
-ARG UID=1100
-ARG GID=1100
-RUN groupadd -g $GID -o $UNAME && useradd -m -l -u $UID -g $GID -o -s /bin/bash $UNAME
-USER $UNAME
+ENV UID=1100
+ENV GID=1100
+ENV UNAME=user
+RUN groupadd -g $GID -o $UNAME 
+RUN useradd -m -l -u $UID -g $GID -o -s /bin/bash $UNAME
+USER ${UID}:${GID}
 # Copy the compiled files over.
 COPY --from=build-env /app/target/ /app/
 EXPOSE 80

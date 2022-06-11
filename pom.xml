@@ -62,6 +62,27 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>3.1.2</version>
       </plugin>
+      <plugin>
+        <groupId>com.github.carlomorelli</groupId>
+        <artifactId>licensescan-maven-plugin</artifactId>
+        <version>1.1</version>
+        <configuration>
+          <printLicenses>true</printLicenses>
+          <blacklistedLicenses>
+            <license>GNU Lesser General Public License</license>
+            <license>GNU General Public License, v2.0</license>
+          </blacklistedLicenses>
+          <failBuildOnBlacklisted>true</failBuildOnBlacklisted>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>compile</phase> <!-- choose the most relevant goal for your pipeline, e.g. 'compile', 'test' or 'deploy' -->
+            <goals>
+              <goal>audit</goal>
+            </goals>
+          </execution>
+        </executions>        
+      </plugin>      
     </plugins>
   </build>
   <distributionManagement>
@@ -74,6 +95,12 @@
       <url>artifactregistry://asia-east1-maven.pkg.dev/shawn-demo-2022/mvn-repo</url>
     </repository>
   </distributionManagement>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </pluginRepository>
+  </pluginRepositories>
   <!-- <repositories>
     <repository>
       <id>artifact-registry</id>
