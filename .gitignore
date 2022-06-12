@@ -2,7 +2,6 @@
 pkg/
 kpt-hello/
 .vscode/
-.mvn/
 .idea/
 .readmes/
 .idea/workspace.xml
