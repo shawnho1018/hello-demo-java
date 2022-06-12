@@ -17,7 +17,7 @@ public class HelloWorldApplication {
     public static void main(final String[] args) throws Exception {
         String port = System.getenv("PORT");
         if (port == null) {
-            logger.warn("$PORT Environment variable not set");
+            logger.warn("$PORT Environment Variable not Set");
         }
         SpringApplication.run(HelloWorldApplication.class, args);
     }
