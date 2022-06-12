@@ -3,3 +3,10 @@ metadataTest:
   exposedPorts: [80]
   cmd: ["java", "-jar", "/app/hello-world-1.0.2.jar"]
   workdir: ""
+fileExistenceTests:
+- name: 'User'
+  path: '/home/user'
+  shouldExist: true
+  permissions: 'drwxr-xr-x'
+  uid: 1100
+  gid: 1100

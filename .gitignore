@@ -1,6 +1,7 @@
 **/.DS_Store
 pkg/
 kpt-hello/
+tags.json
 .vscode/
 .idea/
 .readmes/
