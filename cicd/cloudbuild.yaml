@@ -86,7 +86,7 @@ steps:
     ImageToAttest="${_IMAGE_PATH}@${ImageDigest}"
     export COSIGN_PASSWORD=${_COSIGN_PASSWORD}
     kustomize build kubernetes-manifests/uat > workspace/uat-manifest.yaml
-    result=$(gator test -f workspace/uat-manifest.yaml -f gator-rules/ 2>&1)
+    result=$(gator test -f workspace/uat-manifest.yaml -f gator-rules 2>&1)
     if [ -z $result ]; then
       gsutil cp gs://shawn-demo-2022/keys/cosign-3.key ./cosign.key
       gsutil cp gs://shawn-demo-2022/attestations/gator.template ./gator.template

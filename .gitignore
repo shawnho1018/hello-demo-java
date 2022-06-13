@@ -2,6 +2,7 @@
 pkg/
 kpt-hello/
 tags.json
+gator-rules/origin*
 .vscode/
 .idea/
 .readmes/
