@@ -1,0 +1,8 @@
+steps:
+- id: 'provide SBOM'
+  name: 'spdx/spdx-sbom-generator'
+  entrypoint: sh
+  args:
+  - '-c'
+  - |
+    /spdx-sbom-generator -p . -o out/

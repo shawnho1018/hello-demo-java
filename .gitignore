@@ -1,4 +1,5 @@
 **/.DS_Store
+out/*
 pkg/
 kpt-hello/
 tags.json

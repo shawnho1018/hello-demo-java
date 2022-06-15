@@ -95,6 +95,13 @@ steps:
     else
       exit 1
     fi
+- id: 'provide SBOM'
+  name: 'spdx/spdx-sbom-generator'
+  entrypoint: sh
+  args:
+  - '-c'
+  - |
+    ./spdx-sbom-generator -p . -o out/
 - id: 'trigger cloud deploy'
   name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: sh
