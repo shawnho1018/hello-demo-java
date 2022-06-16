@@ -101,7 +101,7 @@ steps:
   args:
   - '-c'
   - |
-    ./spdx-sbom-generator -p . -o out/
+    /spdx-sbom-generator -p . -o out/
 - id: 'trigger cloud deploy'
   name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: sh
