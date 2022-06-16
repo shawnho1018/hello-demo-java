@@ -4,9 +4,9 @@ version: v1.22.1
 ignore:
   SNYK-JAVA-COMGOOGLEPROTOBUF-2331703:
     - '*':
-        reason: no reason
-        expires: 2022-06-15T16:38:16.540Z
-        created: 2022-05-16T16:38:16.548Z
+        reason: testing
+        expires: 2022-07-15T00:00:00.000Z
+        created: 2022-06-16T00:49:33.167Z
   SNYK-JAVA-ORGSPRINGFRAMEWORK-2689634:
     - '*':
         reason: no reason
@@ -14,7 +14,7 @@ ignore:
         created: 2022-05-16T16:40:28.700Z
   SNYK-JAVA-ORGSPRINGFRAMEWORK-2823313:
     - '*':
-        reason: no reason
-        expires: 2022-06-15T16:41:03.076Z
-        created: 2022-05-16T16:41:03.085Z
+        reason: testing
+        expires: 2022-07-15T00:00:00.000Z
+        created: 2022-06-16T00:49:08.206Z
 patch: {}
