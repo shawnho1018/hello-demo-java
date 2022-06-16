@@ -128,7 +128,7 @@ substitutions:
   _NEGLECT_CVE: CVE-2022-1292
   _PIPELINE: hello-java
   _LOCATION: asia-east1
-timeout: 900s
+timeout: 1200s
 # availableSecrets:
 #   secretManager:
 #   - versionName: projects/715534540884/secrets/snyk-token/versions/1
