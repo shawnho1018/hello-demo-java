@@ -60,6 +60,7 @@ profiles:
     artifacts:
       - image: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-buildpack
         buildpacks: 
-          builder: "gcr.io/buildpacks/builder:v1"
-    local: {}
-    # googleCloudBuild: {}
+          builder: "paketobuildpacks/builder:base"
+          #builder: "gcr.io/buildpacks/builder:v1"
+    # local: {}
+    googleCloudBuild: {}

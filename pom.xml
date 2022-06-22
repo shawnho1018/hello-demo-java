@@ -12,7 +12,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.6</version>
+    <version>2.7.0</version>
   </parent>
 
   <properties>
@@ -40,18 +40,12 @@
             <name>asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/hello-world-java-spring-thin</name>
             <publish>true</publish>
           </image>
-          <docker>
-            <publishRegistry>
-              <username>oauth2accesstoken</username>
-              <password>ya29.A0ARrdaM-xkg0isQ41fQA8hoGoSTcPLu8c1zVA73hfQD4eypUb7WiozJHafPaokhpBDAuv-m1HufSuODRcZqDXWDYfEWDZyfS0WCEa2da3xvFdaNWIWhjCDLQrYAZ4kfn3v_gH6Rw9ipIdKytfooaheJxyRxwF1I3-nGfx</password>
-            </publishRegistry>
-          </docker>
         </configuration>
       </plugin>
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
-        <version>${jib.maven-plugin-version}</version>
+        <version>3.2.1</version>
       </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -71,6 +65,8 @@
           <blacklistedLicenses>
             <!-- license >GNU Lesser General Public License</license -->
             <license>GNU General Public License, v2.0</license>
+            <!--license>GPL2 w/ CPE</license>
+            <license>GNU General Public License, version 2 with the GNU Classpath Exception</license-->
           </blacklistedLicenses>
           <failBuildOnBlacklisted>true</failBuildOnBlacklisted>
         </configuration>
