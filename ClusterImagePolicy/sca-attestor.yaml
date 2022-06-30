@@ -1,0 +1,30 @@
+apiVersion: cosigned.sigstore.dev/v1alpha1
+kind: ClusterImagePolicy
+metadata:
+  name: sca-attestor
+spec:
+  authorities:
+  - attestations:
+    - name: customkey
+      policy:
+        data: |
+          import "time"
+          before: time.Parse(time.RFC3339, "2021-10-09T17:10:27Z")
+          predicateType: "cosign.sigstore.dev/attestation/v1"
+
+          // The predicate must match the following constraints.
+          predicate: {
+            Data: "Static-Code-Analysis\n"
+            Timestamp: >before
+          }
+        type: cue
+      predicateType: custom
+    key:
+      data: |
+        -----BEGIN PUBLIC KEY-----
+        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE4rMj/48jzxvqn2NQeNyr97go3YVm
+        rnu1GUmsJDoAhbmurg5xMBxMIUBDGiiIfD8S2VvQ7MRVXKyXxipGartSng==
+        -----END PUBLIC KEY-----
+    name: authority-0
+  images:
+  - regex: .*

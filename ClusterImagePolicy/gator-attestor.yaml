@@ -1,0 +1,30 @@
+apiVersion: cosigned.sigstore.dev/v1alpha1
+kind: ClusterImagePolicy
+metadata:
+  name: gator-attestor
+spec:
+  authorities:
+  - attestations:
+    - name: customkey
+      policy:
+        data: |
+          import "time"
+          before: time.Parse(time.RFC3339, "2021-10-09T17:10:27Z")
+          predicateType: "cosign.sigstore.dev/attestation/v1"
+
+          // The predicate must match the following constraints.
+          predicate: {
+            Data: "Open-Policy-Agent\n"
+            Timestamp: >before
+          }
+        type: cue
+      predicateType: custom
+    key:
+      data: |
+        -----BEGIN PUBLIC KEY-----
+        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEOG+ucjVL1WnvL1eR1eYMOwH5m0uL
+        MIKb1ycxf+66aoDZBpAL7jM78fhidaJGxwNePy0gMWMY6Elb6NpG6I7vww==
+        -----END PUBLIC KEY-----
+    name: authority-0
+  images:
+  - regex: .*
