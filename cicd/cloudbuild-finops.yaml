@@ -59,7 +59,7 @@ steps:
           echo "****************************************************************************************"
           echo "** Possible cost increase bigger than \$ $$COST_USD_THRESHOLD USD detected. Requesting FinOps approval ..."
           echo "****************************************************************************************"
-          reviewers_url="https://api.github.com/repos/shawnho1018/k8s-cost-estimator-github/pulls/$_PR_NUMBER/requested_reviewers"
+          reviewers_url="https://api.github.com/repos/shawnho1018/hello-demo-java/pulls/$_PR_NUMBER/requested_reviewers"
           reviewers_body="{\"reviewers\":[\"$_GITHUB_FINOPS_REVIEWER_USER\"]}"
           createObject $$reviewers_url "$$reviewers_body"
         else
