@@ -3,3 +3,6 @@ commonLabels:
   env: test
 bases:
 - ../base  
+replicas:
+- name: java-hello-world
+  count: 2
