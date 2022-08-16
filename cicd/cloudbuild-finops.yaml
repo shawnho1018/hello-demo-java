@@ -47,7 +47,7 @@ steps:
         fi
       }
 
-      comments_url="https://api.github.com/repos/shawnho1018/k8s-cost-estimator-github/issues/$_PR_NUMBER/comments"
+      comments_url="https://api.github.com/repos/shawnho1018/hello-demo-java/issues/$_PR_NUMBER/comments"
       comments_body="$(cat output.json)"
       createObject $$comments_url "$$comments_body"
 
