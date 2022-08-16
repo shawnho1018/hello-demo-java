@@ -1,6 +1,6 @@
 steps:
 
-- name: asia-east1-docker.pkg.dev/shawn-demo-2022/docker-repo/k8s-cost-estimator:v0.0.1
+- name: asia-east1-docker.pkg.dev/shawn-demo-2022/image-repos/k8s-cost-estimator:v0.0.2
   entrypoint: 'bash'
   args:
     - '-c'
@@ -17,12 +17,16 @@ steps:
       cd previous
       git checkout $_BASE_BRANCH
       cd ..
+      mkdir -p cost-prev 
+      mkdir -p cost 
+      kustomize build kubernetes-manifests/uat > cost/dep.yaml
+      kustomize build previous/kubernetes-manifests/uat > cost-prev/dep.yaml      
 
       echo ""
       echo "*************************************************************************"
       echo "** Estimating cost difference between current and previous versions..."
       echo "*************************************************************************"
-      k8s-cost-estimator --k8s wordpress --k8s-prev previous/wordpress --output output.json --environ=GITHUB
+      k8s-cost-estimator --k8s cost/ --k8s-prev cost-prev/ --output output.json --environ=GITHUB
 
       echo ""
       echo "***************************************************************************************************************"
