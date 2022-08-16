@@ -52,9 +52,9 @@ steps:
       createObject $$comments_url "$$comments_body"
 
       COST_USD_THRESHOLD=$_GITHUB_FINOPS_COST_USD_THRESHOLD
-      echo "COST Threshold: $$COST_USD_THRESHOLD"
+      echo "COST Threshold: $_GITHUB_FINOPS_COST_USD_THRESHOLD"
       POSSIBLY_COST_INCREASE=$(cat output.diff | jq ".summary.maxDiff.usd")
-      echo "COST_INCREASE: $$POSSIBLY_COST_INCREASE"
+      echo "COST_INCREASE: $POSSIBLY_COST_INCREASE"
       if (( $(echo "$$POSSIBLY_COST_INCREASE > $$COST_USD_THRESHOLD" | bc -l) ))
         then
           echo ""
