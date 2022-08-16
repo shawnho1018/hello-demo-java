@@ -4,6 +4,7 @@ pkg/
 kpt-hello/
 tags.json
 gator-rules/origin*
+test/
 .vscode/
 .idea/
 .readmes/
